@@ -1,0 +1,1 @@
+Vá nno diretório de instalação do V-REP, na pasta programming->remoteApiBindings/lib/lib e copie a biblioteca compatível com o seu sistema para a pasta lib do projeto.
