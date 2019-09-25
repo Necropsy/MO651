@@ -45,9 +45,18 @@ if clientID != -1:
     ax.legend()
     plt.show()
 
-##    v0=2
-##    vLeft=v0
-##    vRight=v0
+    v0=2
+
+    us_handle = []
+    sensor_name=[]
+    for i in range(0,16):
+        sensor_name.append("Pioneer_p3dx_ultrasonicSensor"+str(i+1))
+        res, handle = vrep.simxGetObjectHandle(clientID, sensor_name[i], vrep.simx_opmode_oneshot_wait)
+        if(res != vrep.simx_return_ok):
+            print ("\033[93m "+ sensor_name[i] + " not connected.")
+        else:
+            print ("\033[92m "+ sensor_name[i] + " connected.")
+            us_handle.append(handle)
     
     #diametro da roda = 195mm; comprimento do eixo = 381mm
     radius=0.195/2
@@ -79,14 +88,13 @@ if clientID != -1:
         
         j = [round(dxL,3),round(dxR,3)]
         #print(j)
-        if (round(dxR,3) != round(dxL,3)):
-          ang=ang-(radius*dxL/(2*L))+(radius*dxR/(2*L))
-        else:
-          ang=ang
+        #if (round(dxR,3) != round(dxL,3)):
+        ang=ang-(radius*dxL/(2*L))+(radius*dxR/(2*L))
+        #else:
+          #ang=ang
         dist0=(radius*dxL/2)+(radius*dxR/2)
 
         rotXY=np.dot(np.array([[math.cos(ang),-math.sin(ang)],[math.sin(ang),math.cos(ang)]]),np.array([[dist0],[0]]))
-        print(dist0)
         transXY=np.array([[rotXY[0][0]+previousPosition[0]],[rotXY[1][0]+previousPosition[1]]])
         previousPosition=[transXY[0][0],transXY[1][0]]
         x=[position[0],transXY[0][0]]
@@ -95,7 +103,24 @@ if clientID != -1:
         l1=['Truth','Odometry']
         sc =ax.scatter(x,y,s=5, edgecolors='none', c=color, label=l1)
         fig.canvas.draw()
-        time.sleep(0.1)
+
+        distances=[]
+        for sensor in us_handle:
+            res, status, distance,_,_ = vrep.simxReadProximitySensor(clientID, sensor, vrep.simx_opmode_streaming)
+            distances.append(distance[2])
+        angular=[90,50,30,10,-10,-30,-50,-90,-90,-130,-150,-170,170,150,130,90]
+        print(distances)
+        for i in range(0,16):
+            if (distances[i] > 0):
+                angulars=ang+math.radians(angular[i]);
+                rotXY=np.dot(np.array([[math.cos(angulars),-math.sin(angulars)],[math.sin(angulars),math.cos(angulars)]]),np.array([[distances[i]],[0]]))
+                transXY=np.array([[rotXY[0][0]+position[0]],[rotXY[1][0]+position[1]]])
+                x=[transXY[0][0]]
+                y=[transXY[1][0]]
+                sc =ax.scatter(x,y,s=1, edgecolors='none', c='cyan', alpha=0.6)
+
+        time.sleep(0.01)
+
 else:
     vrep.simxFinish(clientID)
     sys.exit("\033[91m ERROR: Unable to connect to remoteApi server. Consider running scene before executing script.")
