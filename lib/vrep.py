@@ -17,7 +17,6 @@ try:
         file_extension = '.dylib'
     else:
         file_extension = '.so'
-    file_extension = '.dll'
     libfullpath = os.path.join(os.path.dirname(__file__), 'remoteApi' + file_extension)
     libsimx = ct.CDLL(libfullpath)
 except:
