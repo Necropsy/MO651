@@ -2,7 +2,9 @@ import sys, time
 sys.path.insert(0, '../lib')
 import vrep
 
-class Robot():
+class Robot:
+
+    
 	def __init__(self):
 		self.ROBOT_WIDTH = 0.381
 		self.WHEEL_RADIUS = 0.195/2.0
