@@ -11,7 +11,7 @@ class Robot:
 		self.SERVER_IP = "127.0.0.1"
 		self.SERVER_PORT = 25000
 		self.clientID = self.start_sim()
-		self.us_handle, self.vision_handle, self.laser_handle = self.start_sensors()
+		self.us_handle, self.vision_handle, self.laser_handle, self.gyro_handle = self.start_sensors()
 		self.motors_handle = self.start_motors()
 		self.robot_handle = self.start_robot()
 
@@ -75,7 +75,14 @@ class Robot:
 		else:
 			print ("\033[92m Laser connected.")
 
-		return us_handle, vision_handle, laser_handle
+		#Starting Gyro sensor
+		res, gyro_handle = vrep.simxGetObjectHandle(self.clientID, "GyroSensor", vrep.simx_opmode_oneshot_wait)
+		if(res != vrep.simx_return_ok):
+			print ("\033[93m Gyro not connected.")
+		else:
+			print ("\033[92m Gyro connected.")	
+
+		return us_handle, vision_handle, laser_handle, gyro_handle
 
 	def start_motors(self):
 		"""
@@ -160,6 +167,35 @@ class Robot:
 			laser = vrep.simxUnpackFloats(laser)
 
 		return laser
+
+	def read_gyro(self):
+		res, gyro = vrep.simxGetStringSignal(self.clientID,"GyromeasuredDataAtThisTime", vrep.simx_opmode_streaming)
+		gyro = vrep.simxUnpackFloats(gyro)
+		while(res != vrep.simx_return_ok):
+			res, gyro = vrep.simxGetStringSignal(self.clientID,"GyromeasuredDataAtThisTime", vrep.simx_opmode_buffer)
+			gyro = vrep.simxUnpackFloats(gyro)
+		return gyro
+    
+	def read_gyroAngle(self):
+		res, gyro = vrep.simxGetStringSignal(self.clientID,"EulerGyromeasuredDataAtThisTime", vrep.simx_opmode_streaming)
+		gyro = vrep.simxUnpackFloats(gyro)
+		while(res != vrep.simx_return_ok):
+			res, gyro = vrep.simxGetStringSignal(self.clientID,"EulerGyromeasuredDataAtThisTime", vrep.simx_opmode_buffer)
+			gyro = vrep.simxUnpackFloats(gyro)
+		return gyro
+    #EulerGyromeasuredDataAtThisTime
+        
+# 		res, gyro_x = vrep.simxGetFloatSignal(self.clientID,"gyroX", vrep.simx_opmode_streaming)
+# 		res, gyro_y = vrep.simxGetFloatSignal(self.clientID,"gyroY", vrep.simx_opmode_streaming)
+# 		res, gyro_z = vrep.simxGetFloatSignal(self.clientID,"gyroZ", vrep.simx_opmode_streaming)
+
+# 		#while(res != vrep.simx_return_ok):
+# 			#res, gyro_x = vrep.simxGetFloatSignal(self.clientID,"gyroX", vrep.simx_opmode_streaming)
+# 			#res, gyro_y = vrep.simxGetFloatSignal(self.clientID,"gyroY", vrep.simx_opmode_streaming)
+# 			#res, gyro_z = vrep.simxGetFloatSignal(self.clientID,"gyroZ", vrep.simx_opmode_streaming)
+
+
+# 		return gyro_x, gyro_y, gyro_z
 
 	def stop(self):
 		"""
