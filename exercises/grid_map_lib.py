@@ -68,6 +68,19 @@ class GridMap:
             y_pos, self.left_lower_y, self.height)
 
         return x_ind, y_ind
+    
+    def get_pos_from_xy_index(self, x_index, y_index):
+        """get_pos_from_xy_index
+
+        :param x_index: x index
+        :param y_index: y index
+        """
+        x_pos = self.calc_pos_from_xy_index(
+            x_index, self.left_lower_x, self.width) + self.center_x
+        y_pos = self.calc_pos_from_xy_index(
+            y_index, self.left_lower_y, self.height) + self.center_y
+
+        return x_pos, y_pos
 
     def set_value_from_xy_pos(self, x_pos, y_pos, val):
         """set_value_from_xy_pos
@@ -158,6 +171,10 @@ class GridMap:
             return ind
         else:
             return None
+        
+    def calc_pos_from_xy_index(self, index, lower_pos, max_index):
+        value = (index*self.resolution) + lower_pos
+        return value
 
     def check_occupied_from_xy_index(self, xind, yind, occupied_val=1.0):
 

@@ -183,7 +183,7 @@ def generate_ray_casting_grid_map(ox, oy, xyreso, breshen=True):
             pmap[ix+1][iy] = 1.0   # extend the occupied area
             pmap[ix][iy+1] = 1.0   # extend the occupied area
             pmap[ix+1][iy+1] = 1.0 # extend the occupied area
-    return pmap, minx, maxx, miny, maxy, xyreso
+    return pmap, minx, maxx, miny, maxy, xyreso, centix, centiy
 
 
 def main():
